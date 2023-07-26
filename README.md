@@ -10,7 +10,7 @@ script: TE_blast_hits_on_kmer_PCA_automated.R
 script: compare_all_lists_with_all_lists
  + Input: two lists listing names of files to be compared
 #
-sript: count_KO_identifiers.R
+script: count_KO_identifiers.R
 + creates a table with:
   1. number of total proteins
   2. number of SP proteins (without tmd)
