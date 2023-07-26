@@ -1,0 +1,146 @@
+#!/usr/bin/perl
+
+# ******* list_compare
+# compares two lists and prints out the differences
+
+# This is a fully functional script
+
+use warnings;
+
+if (@ARGV < 2) {
+	print "1. = list1 of filenames (recommened: shorter list)\n";
+	print "2. = list2 of filenames\n\n";
+	print "This script compares all lists named in list1 with all lists named in list2\n";
+	
+	exit;
+	}
+
+
+$list_1 = $ARGV[0];
+$list_2 = $ARGV[1];
+
+open (IN_1,"<$list_1");							# open list of filenames
+open (IN_2,"<$list_2");
+
+@list_1 = <IN_1>;							# extract filenames
+@list_2 = <IN_2>;
+
+$summary = "summary_all_comparisons_$ARGV[0]\_to_$ARGV[1]"; 					# summary for the whole thing
+open(OUT4,">$summary");
+print OUT4 "file_l1\tentries_in_l1\tfile_l2\tentries_in_l2\tcommon_entries\tsimilarity_l1\tsimilarity_l2\n";
+
+
+
+foreach $file1 (@list_1) { # BAS_01					# FILE LOOP 1: OPEN FILES FROM LIST 1
+	
+	chomp($file1);
+	$filename1 = $file1;		
+	open (IN1, "<$filename1"); 					# read in each file from FIRST list of files
+	@list1 = <IN1>; 						# array with contig names
+	
+	print "\nchecking $filename1 from $ARGV[0] against all files from $ARGV[1]\n";
+	
+	
+	##### compare list1 with list2 #####
+	
+		foreach $file2 (@list_2) { # BAS_01			# FILE LOOP 2: OPEN FILES FROM LIST 2
+		
+			chomp($file2);
+			$filename2 = $file2;
+			open(IN2, "<$filename2");			# infile handling
+			@list2 = <IN2>;
+			
+			$list1_len = @list1;
+			$list2_len = @list2;	
+			
+			#@common =(); 					# each comparison one array
+			
+			$found = 0;					# I think correct position
+			$count_both = 0;
+			#$count_not1 = 0;
+			$count_total1 = 0;
+			
+			print OUT4 "$filename1\t$list1_len\t$filename2\t$list2_len\t";		
+			
+			foreach $line1 (@list1) { # Cran_GR_MFp		# loop through contigs
+
+				chomp ($line1);
+				($data) = ($line1 =~ /^(\S+)/);
+				
+
+				foreach $line2 (@list2) { #Cran_GR_MFp	# OPEN FILES in list2 
+			
+					($data2) = ($line2 =~ /^(\S+)/);
+					$count_total1++;
+				
+				
+					if ($data eq $data2) {
+						$found++;
+						$count_both++;
+						
+						#push(@common,$data);	# unique push, common ctgs only once into array
+						
+					# untag this to get files with ctg names
+					#	if ($found == 1) {	# open outfile exactly once! 
+					#		$out3 = "list_common_contigs_of_$filename1\_and_$filename2";
+					#		open(OUT3,">$out3");
+					#		}
+					#	
+					#	else { $count_not1++; } #-> unique contigs of list 2
+						}
+					}
+				}	
+				
+		#foreach $found_ctgs (@common) { print OUT3 "$found_ctgs\n";}
+		
+		if ($list1_len == 0) {
+			print OUT4 "0\t0\t";
+			}
+		else {
+			($similarity_l1) = ($count_both/$list1_len);
+			print OUT4 "$count_both\t$similarity_l1\t";
+			}
+		
+		
+		##### compare list2 with list1: #####
+		
+		foreach $line3 (@list2) {
+
+			chomp ($line3);
+			($data) = ($line3 =~ /^(\S+)/);
+			$found2 = 0;
+			$count_not2 = 0;
+			$count_total2 = 0;
+
+			foreach $line2 (@list1) {
+			
+				chomp($line2);
+				($data2) = ($line2 =~ /^(\S+)/);
+				$count_total2++;
+					
+				if ($data eq $data2) {
+					$found2++;
+					}
+				else { $count_not2++; } # -> unique contigs of list 1
+				}
+			}
+		if ($list2_len == 0) {
+			print OUT4 "0\n";
+			}
+		else {
+		($similarity_l2) = ($count_both/$list2_len);
+		print OUT4 "$similarity_l2\n";
+			}
+		}
+}
+
+close OUT4;
+__END__
+
+
+
+
+
+
+
+
